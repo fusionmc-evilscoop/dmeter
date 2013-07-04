@@ -1,0 +1,55 @@
+V2.2.2
+-MC 1.5.2 Forge
+
+V2.2.1
+-MC 1.5.1 Forge
+
+V2.2
+-MC 1.5 Forge
+
+V2.1.6
+-MC 1.4.7 Forge
+
+V2.1.5
+-MC 1.4.6 Forge
+
+V2.1.4
+-MC 1.4.5 Forge
+
+V2.1.3
+-MC 1.4.4 Forge
+
+V2.1.2
+-MC 1.4.2 Forge
+
+V2.1.1
+-Forge
+
+V2.1
+-MC 1.3.2
+-Fixed a small issue that throws an exception in the console, but did not affect functionality
+
+V2.0
+-MC 1.3.1
+[Client]
+-right clicking with diamond meter selected will reload config
+-added support for retreiving server config
+-added option to have sounds play for each state change (disabled by default, go into config and change playSound to true)
+-[bug fix] added check to make sure config file is not trying to load a string into an integer or float
+[Server]
+-added config file
+-added server-side commands
+
+V1.1.1
+-MC 1.2.5
+-Updated client version number to match server version (no other changes done)
+-Created a server version of the mod to be used with ModLoaderMp
+
+V1.1.0
+-MC 1.2.5
+-Added a config file to set Block ID of block to look for and distance to look
+
+V1.0.0
+-MC 1.2.5
+-first version
+-simple diamond meter, starts detection at 8 blocks

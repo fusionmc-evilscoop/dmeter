@@ -1,0 +1,16 @@
+[
+{
+  "modid": "DiamondMeter",
+  "name": "Diamond Meter",
+  "description": "Diamond meter is a device that, when held in your quick-bar, will indicate if there is any diamond ore near to you. Cause lets just admit it, all of us have better things to do than strip mine the bottom 10 layers of your world, looking for diamonds.",
+  "version": "2.2.2",
+  "mcversion": "1.5.2",
+  "url": "http://www.minecraftforum.net/topic/1337916-",
+  "authors": [
+    "PCChazter"
+  ],
+  "dependencies": [
+     "mod_MinecraftForge"
+  ]
+}
+]
