@@ -1,348 +1,310 @@
 package pcchazter.DiamondMeter;
 
-import net.minecraftforge.client.MinecraftForgeClient;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Properties;
+import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityClientPlayerMP;
+import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.src.ModLoader;
+import net.minecraft.util.Icon;
+import net.minecraft.world.World;
 
-public class ItemDiamondMeter extends wk
-{
-  private static Long lastUpdate = Long.valueOf(0L);
-  private static Long millisPerUpdate = Long.valueOf(100L);
-  private static boolean isClient;
-  private static int distanceMax;
-  private static int toFind;
-  private static String soundCloser;
-  private static String soundFurther;
-  private static Float soundVolume;
-  private static Boolean playSound;
-  private static String configComment;
-  private static int distancePerLevel;
-  private static lx[] iconIndexes;
-  private static int distanceShortest = -1;
-  private static int lastState = 0;
+public class ItemDiamondMeter extends Item {
 
-  private static ArrayList found = new ArrayList();
-  private static int[] vectorShortest = new int[3];
-  private static File configFile;
-  public static Properties prop = new Properties();
+   private static Long lastUpdate = Long.valueOf(0L);
+   private static Long millisPerUpdate = Long.valueOf(100L);
+   private static boolean isClient;
+   private static int distanceMax;
+   private static int toFind;
+   private static String soundCloser;
+   private static String soundFurther;
+   private static Float soundVolume;
+   private static Boolean playSound;
+   private static String configComment;
+   private static int distancePerLevel;
+   private static Icon[] iconIndexes;
+   private static int distanceShortest = -1;
+   private static int lastState = 0;
+   private static ArrayList found = new ArrayList();
+   private static int[] vectorShortest = new int[3];
+   private static File configFile;
+   public static Properties prop = new Properties();
+   protected static Properties serverProps = new Properties();
 
-  protected static Properties serverProps = new Properties();
 
-  protected ItemDiamondMeter(int par1, boolean client)
-  {
-    super(par1);
-    this.cq = 1;
-    isClient = client;
-    a(ve.i);
-
-    if (isClient)
-    {
-      configFile = new File(Minecraft.b(), "DiamondMeter.txt");
-      configComment = "Diamond Meter Config";
-
-      iconIndexes = new lx[5];
-    }
-    else
-    {
-      configFile = new File("DiamondMeter_Server.txt");
-      configComment = "Diamond Meter Server Config";
-    }
-
-    loadConfig();
-  }
-
-  @SideOnly(Side.CLIENT)
-  public void a(ly par1IconRegister)
-  {
-    for (int i = 0; i <= 4; i++)
-    {
-      iconIndexes[i] = par1IconRegister.a(new StringBuilder().append("DiamondMeter:diamond_meter").append(i).toString());
-    }
-
-    this.ct = iconIndexes[0];
-  }
-
-  protected void loadConfig()
-  {
-    try
-    {
-      if (((configFile.exists()) || (configFile.createNewFile())) && (configFile.isFile()))
-      {
-        if (configFile.canRead())
-        {
-          FileReader reader = new FileReader(configFile);
-          prop.load(reader);
-          reader.close();
-        }
+   protected ItemDiamondMeter(int var1, boolean var2) {
+      super(var1);
+      this.field_77777_bU = 1;
+      isClient = var2;
+      this.func_77637_a(CreativeTabs.field_78040_i);
+      if(isClient) {
+         configFile = new File(Minecraft.func_71380_b(), "DiamondMeter.txt");
+         configComment = "Diamond Meter Config";
+         iconIndexes = new Icon[5];
+      } else {
+         configFile = new File("DiamondMeter_Server.txt");
+         configComment = "Diamond Meter Server Config";
       }
-    }
-    catch (Exception e)
-    {
-      e.printStackTrace();
-    }
 
-    initProps();
-    saveConfig();
-  }
+      this.loadConfig();
+   }
 
-  private String getProperty(String name, String defaultValue)
-  {
-    return getProperty(name, defaultValue, 0);
-  }
+   @SideOnly(Side.CLIENT)
+   public void func_94581_a(IconRegister var1) {
+      for(int var2 = 0; var2 <= 4; ++var2) {
+         iconIndexes[var2] = var1.func_94245_a("DiamondMeter:diamond_meter" + var2);
+      }
 
-  private String getProperty(String name, String defaultValue, int type)
-  {
-    String out = defaultValue;
+      this.field_77791_bV = iconIndexes[0];
+   }
 
-    if ((!isClient) || (ModLoader.getMinecraftInstance().C()) || (ModLoader.getMinecraftInstance().e == null))
+   protected void loadConfig() {
       try {
-        if (prop.get(name) != null) out = (String)prop.get(name); 
-      }
-      catch (NumberFormatException e) {
-      }
-    else try { if (serverProps.get(name) != null) out = (String)serverProps.get(name); 
-      }
-      catch (NumberFormatException e)
-      {
-      }
-    switch (type)
-    {
-    case 0:
-      break;
-    case 1:
-      try { Integer.parseInt(out);
-      } catch (NumberFormatException e)
-      {
-        e.printStackTrace();
-        out = defaultValue;
-      }
-    case 2:
-      try {
-        Float.parseFloat(out);
-      }
-      catch (NumberFormatException e) {
-        e.printStackTrace();
-        out = defaultValue;
+         if((configFile.exists() || configFile.createNewFile()) && configFile.isFile() && configFile.canRead()) {
+            FileReader var1 = new FileReader(configFile);
+            prop.load(var1);
+            var1.close();
+         }
+      } catch (Exception var2) {
+         var2.printStackTrace();
       }
 
-    }
+      this.initProps();
+      this.saveConfig();
+   }
 
-    if ((!isClient) || (ModLoader.getMinecraftInstance().C()) || (ModLoader.getMinecraftInstance().e == null))
-    {
-      prop.put(name, out);
-    }
+   private String getProperty(String var1, String var2) {
+      return this.getProperty(var1, var2, 0);
+   }
 
-    return out;
-  }
-
-  protected void initProps()
-  {
-    distanceMax = Integer.valueOf(getProperty("distanceMax", String.valueOf(8), 1)).intValue();
-    toFind = Integer.valueOf(getProperty("toFind", String.valueOf(apa.aA.cz), 1)).intValue();
-
-    playSound = Boolean.valueOf(getProperty("playSound", "false"));
-    soundCloser = getProperty("soundCloser", "random.pop");
-    soundFurther = getProperty("soundFurther", "note.bd");
-    soundVolume = Float.valueOf(getProperty("soundVolume", "1.0", 2));
-
-    distancePerLevel = distanceMax / 4;
-
-    if (distancePerLevel < 1) distancePerLevel = 1;
-
-    System.out.println(new StringBuilder().append("DiamondMeter: Loaded ").append((isClient) && ((ModLoader.getMinecraftInstance().C()) || (ModLoader.getMinecraftInstance().e == null)) ? "Client" : "Server").append(" config.").toString());
-
-    if (isClient)
-    {
-      Minecraft mc = ModLoader.getMinecraftInstance();
-      update(mc);
-    }
-  }
-
-  protected void saveConfig()
-  {
-    if ((isClient) && (!ModLoader.getMinecraftInstance().C()) && (ModLoader.getMinecraftInstance().e != null)) return;
-
-    try
-    {
-      if (((configFile.exists()) || (configFile.createNewFile())) && (configFile.isFile()))
-      {
-        if ((configFile.canWrite()) && (configFile.canRead()))
-        {
-          FileWriter writer = new FileWriter(configFile);
-          prop.store(writer, configComment);
-          writer.close();
-        }
-        else
-        {
-          throw new IOException(new StringBuilder().append("Wrong permissions on ").append(configFile.getAbsolutePath()).toString());
-        }
-      }
-      else
-      {
-        throw new IOException(new StringBuilder().append("Could not init ").append(configFile.getAbsolutePath()).toString());
-      }
-    }
-    catch (Exception e)
-    {
-      e.printStackTrace();
-    }
-  }
-
-  @SideOnly(Side.CLIENT)
-  public void a(wm par1ItemStack, aab par2World, mp par3Entity, int par4, boolean par5)
-  {
-    Minecraft mc = ModLoader.getMinecraftInstance();
-    update(mc);
-  }
-
-  @SideOnly(Side.CLIENT)
-  public void update(Minecraft mc)
-  {
-    if (new Date().getTime() <= lastUpdate.longValue() + millisPerUpdate.longValue()) return;
-
-    lastUpdate = Long.valueOf(new Date().getTime());
-
-    found.clear();
-    distanceShortest = -1;
-
-    sq player = mc.g;
-    aab world = mc.e;
-
-    if ((player == null) || (world == null)) return;
-
-    double cur_x = player.u;
-    double cur_y = player.v;
-    double cur_z = player.w;
-
-    int min_x = (int)cur_x - distanceMax - 1;
-    int min_y = (int)cur_y - distanceMax;
-    int min_z = (int)cur_z - distanceMax;
-
-    int max_x = (int)cur_x + distanceMax;
-    int max_y = (int)cur_y + distanceMax;
-    int max_z = (int)cur_z + distanceMax + 1;
-
-    for (int z1 = min_z; z1 < max_z; z1++)
-    {
-      for (int x1 = min_x; x1 < max_x; x1++)
-      {
-        for (int y1 = min_y; y1 < max_y; y1++)
-        {
-          if (world.a(x1, y1, z1) == toFind)
-          {
-            found.add(new int[] { x1, y1, z1 });
-          }
-        }
+   private String getProperty(String var1, String var2, int var3) {
+      String var4 = var2;
+      if(isClient && !ModLoader.getMinecraftInstance().func_71356_B() && ModLoader.getMinecraftInstance().field_71441_e != null) {
+         try {
+            if(serverProps.get(var1) != null) {
+               var4 = (String)serverProps.get(var1);
+            }
+         } catch (NumberFormatException var8) {
+            ;
+         }
+      } else {
+         try {
+            if(prop.get(var1) != null) {
+               var4 = (String)prop.get(var1);
+            }
+         } catch (NumberFormatException var9) {
+            ;
+         }
       }
 
-    }
-
-    for (int i = 0; i < found.size(); i++)
-    {
-      int[] block = (int[])found.get(i);
-
-      double distanceX = block[0] - cur_x;
-      double distanceY = block[1] - cur_y + 1.0D;
-      double distanceZ = block[2] - cur_z;
-
-      distanceX += (distanceX > 0.0D ? 1.0D : 0.0D);
-      distanceZ += (distanceZ > 0.0D ? 1.0D : 0.0D);
-
-      double distance2D = Math.sqrt(Math.pow(distanceX, 2.0D) + Math.pow(distanceZ, 2.0D));
-      double distance3D = Math.sqrt(Math.pow(distance2D, 2.0D) + Math.pow(distanceY, 2.0D));
-
-      if ((int)distance3D > distanceMax)
-      {
-        found.remove(i);
-        i--;
-      }
-      else if ((distanceShortest > distance3D) || (distanceShortest == -1))
-      {
-        distanceShortest = (int)distance3D;
-        vectorShortest = new int[] { block[0], block[1], block[2] };
-      }
-    }
-
-    if (distanceShortest > -1)
-    {
-      int level = (distanceMax - distanceShortest + 1) / distancePerLevel;
-
-      if (distanceMax < 4)
-      {
-        level += 4 - distanceMax;
-      }
-
-      switch (level)
-      {
+      switch(var3) {
       case 0:
+      default:
+         break;
       case 1:
-        this.ct = iconIndexes[1];
-        lastState = playDistanceSound(mc, vectorShortest, 1, lastState);
-        break;
+         try {
+            Integer.parseInt(var4);
+         } catch (NumberFormatException var7) {
+            var7.printStackTrace();
+            var4 = var2;
+         }
+         break;
       case 2:
-        this.ct = iconIndexes[2];
-        lastState = playDistanceSound(mc, vectorShortest, 2, lastState);
-        break;
-      case 3:
-        this.ct = iconIndexes[3];
-        lastState = playDistanceSound(mc, vectorShortest, 3, lastState);
-        break;
-      case 4:
-        this.ct = iconIndexes[4];
-        lastState = playDistanceSound(mc, vectorShortest, 4, lastState);
+         try {
+            Float.parseFloat(var4);
+         } catch (NumberFormatException var6) {
+            var6.printStackTrace();
+            var4 = var2;
+         }
       }
 
-    }
-    else
-    {
-      this.ct = iconIndexes[0];
-      lastState = playDistanceSound(mc, vectorShortest, 0, lastState);
-    }
-  }
+      if(!isClient || ModLoader.getMinecraftInstance().func_71356_B() || ModLoader.getMinecraftInstance().field_71441_e == null) {
+         prop.put(var1, var4);
+      }
 
-  @SideOnly(Side.CLIENT)
-  private int playDistanceSound(Minecraft mc, int[] vector, int curState, int lastState)
-  {
-    sq player = mc.g;
-    aab world = mc.e;
+      return var4;
+   }
 
-    float pitch = 1.0F;
-    boolean play = false;
+   protected void initProps() {
+      distanceMax = Integer.valueOf(this.getProperty("distanceMax", String.valueOf(8), 1)).intValue();
+      toFind = Integer.valueOf(this.getProperty("toFind", String.valueOf(Block.field_72073_aw.field_71990_ca), 1)).intValue();
+      playSound = Boolean.valueOf(this.getProperty("playSound", "false"));
+      soundCloser = this.getProperty("soundCloser", "random.pop");
+      soundFurther = this.getProperty("soundFurther", "note.bd");
+      soundVolume = Float.valueOf(this.getProperty("soundVolume", "1.0", 2));
+      distancePerLevel = distanceMax / 4;
+      if(distancePerLevel < 1) {
+         distancePerLevel = 1;
+      }
 
-    String soundPlayed = "";
+      System.out.println("DiamondMeter: Loaded " + (isClient && (ModLoader.getMinecraftInstance().func_71356_B() || ModLoader.getMinecraftInstance().field_71441_e == null)?"Client":"Server") + " config.");
+      if(isClient) {
+         Minecraft var1 = ModLoader.getMinecraftInstance();
+         this.update(var1);
+      }
 
-    if (lastState < curState)
-    {
-      pitch = curState * 3 / 10.0F + 0.8F;
-      soundPlayed = soundCloser;
-      play = true;
-    }
-    else if (lastState > curState)
-    {
-      pitch = curState * 3 / 10.0F + 0.8F;
-      soundPlayed = soundFurther;
-      play = true;
-    }
+   }
 
-    if (!player.bK.e(this.cp)) play = false;
+   protected void saveConfig() {
+      if(!isClient || ModLoader.getMinecraftInstance().func_71356_B() || ModLoader.getMinecraftInstance().field_71441_e == null) {
+         try {
+            if(!configFile.exists() && !configFile.createNewFile() || !configFile.isFile()) {
+               throw new IOException("Could not init " + configFile.getAbsolutePath());
+            }
 
-    if ((play) && (playSound.booleanValue()) && (soundPlayed != ""))
-    {
-      world.a(player.u, player.v, player.w, soundPlayed, soundVolume.floatValue(), pitch, false);
-    }
+            if(!configFile.canWrite() || !configFile.canRead()) {
+               throw new IOException("Wrong permissions on " + configFile.getAbsolutePath());
+            }
 
-    return curState;
-  }
+            FileWriter var1 = new FileWriter(configFile);
+            prop.store(var1, configComment);
+            var1.close();
+         } catch (Exception var2) {
+            var2.printStackTrace();
+         }
 
-  @SideOnly(Side.CLIENT)
-  public wm a(wm itemStackIn, aab world, sq player)
-  {
-    prop.clear();
-    loadConfig();
-    return itemStackIn;
-  }
+      }
+   }
 
-  @SideOnly(Side.CLIENT)
-  public boolean onDroppedByPlayer(wm item, sq player)
-  {
-    return true;
-  }
+   @SideOnly(Side.CLIENT)
+   public void func_77663_a(ItemStack var1, World var2, Entity var3, int var4, boolean var5) {
+      Minecraft var6 = ModLoader.getMinecraftInstance();
+      this.update(var6);
+   }
+
+   @SideOnly(Side.CLIENT)
+   public void update(Minecraft var1) {
+      if((new Date()).getTime() > lastUpdate.longValue() + millisPerUpdate.longValue()) {
+         lastUpdate = Long.valueOf((new Date()).getTime());
+         found.clear();
+         distanceShortest = -1;
+         EntityClientPlayerMP var2 = var1.field_71439_g;
+         WorldClient var3 = var1.field_71441_e;
+         if(var2 != null && var3 != null) {
+            double var4 = var2.field_70165_t;
+            double var6 = var2.field_70163_u;
+            double var8 = var2.field_70161_v;
+            int var10 = (int)var4 - distanceMax - 1;
+            int var11 = (int)var6 - distanceMax;
+            int var12 = (int)var8 - distanceMax;
+            int var13 = (int)var4 + distanceMax;
+            int var14 = (int)var6 + distanceMax;
+            int var15 = (int)var8 + distanceMax + 1;
+
+            int var16;
+            for(var16 = var12; var16 < var15; ++var16) {
+               for(int var17 = var10; var17 < var13; ++var17) {
+                  for(int var18 = var11; var18 < var14; ++var18) {
+                     if(var3.func_72798_a(var17, var18, var16) == toFind) {
+                        found.add(new int[]{var17, var18, var16});
+                     }
+                  }
+               }
+            }
+
+            for(var16 = 0; var16 < found.size(); ++var16) {
+               int[] var28 = (int[])((int[])found.get(var16));
+               double var29 = (double)var28[0] - var4;
+               double var20 = (double)var28[1] - var6 + 1.0D;
+               double var22 = (double)var28[2] - var8;
+               var29 += var29 > 0.0D?1.0D:0.0D;
+               var22 += var22 > 0.0D?1.0D:0.0D;
+               double var24 = Math.sqrt(Math.pow(var29, 2.0D) + Math.pow(var22, 2.0D));
+               double var26 = Math.sqrt(Math.pow(var24, 2.0D) + Math.pow(var20, 2.0D));
+               if((int)var26 > distanceMax) {
+                  found.remove(var16);
+                  --var16;
+               } else if((double)distanceShortest > var26 || distanceShortest == -1) {
+                  distanceShortest = (int)var26;
+                  vectorShortest = new int[]{var28[0], var28[1], var28[2]};
+               }
+            }
+
+            if(distanceShortest > -1) {
+               var16 = (distanceMax - distanceShortest + 1) / distancePerLevel;
+               if(distanceMax < 4) {
+                  var16 += 4 - distanceMax;
+               }
+
+               switch(var16) {
+               case 0:
+               case 1:
+                  this.field_77791_bV = iconIndexes[1];
+                  lastState = this.playDistanceSound(var1, vectorShortest, 1, lastState);
+                  break;
+               case 2:
+                  this.field_77791_bV = iconIndexes[2];
+                  lastState = this.playDistanceSound(var1, vectorShortest, 2, lastState);
+                  break;
+               case 3:
+                  this.field_77791_bV = iconIndexes[3];
+                  lastState = this.playDistanceSound(var1, vectorShortest, 3, lastState);
+                  break;
+               case 4:
+                  this.field_77791_bV = iconIndexes[4];
+                  lastState = this.playDistanceSound(var1, vectorShortest, 4, lastState);
+               }
+            } else {
+               this.field_77791_bV = iconIndexes[0];
+               lastState = this.playDistanceSound(var1, vectorShortest, 0, lastState);
+            }
+
+         }
+      }
+   }
+
+   @SideOnly(Side.CLIENT)
+   private int playDistanceSound(Minecraft var1, int[] var2, int var3, int var4) {
+      EntityClientPlayerMP var5 = var1.field_71439_g;
+      WorldClient var6 = var1.field_71441_e;
+      float var7 = 1.0F;
+      boolean var8 = false;
+      String var9 = "";
+      if(var4 < var3) {
+         var7 = (float)(var3 * 3) / 10.0F + 0.8F;
+         var9 = soundCloser;
+         var8 = true;
+      } else if(var4 > var3) {
+         var7 = (float)(var3 * 3) / 10.0F + 0.8F;
+         var9 = soundFurther;
+         var8 = true;
+      }
+
+      if(!var5.field_71071_by.func_70450_e(this.field_77779_bT)) {
+         var8 = false;
+      }
+
+      if(var8 && playSound.booleanValue() && var9 != "") {
+         var6.func_72980_b(var5.field_70165_t, var5.field_70163_u, var5.field_70161_v, var9, soundVolume.floatValue(), var7, false);
+      }
+
+      return var3;
+   }
+
+   @SideOnly(Side.CLIENT)
+   public ItemStack func_77659_a(ItemStack var1, World var2, EntityPlayer var3) {
+      prop.clear();
+      this.loadConfig();
+      return var1;
+   }
+
+   @SideOnly(Side.CLIENT)
+   public boolean onDroppedByPlayer(ItemStack var1, EntityPlayer var2) {
+      return true;
+   }
+
 }
