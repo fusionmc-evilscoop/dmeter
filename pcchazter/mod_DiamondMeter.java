@@ -1,35 +1,16 @@
 package pcchazter.DiamondMeter;
 
-import ModLoader;
-import ab;
-import apa;
-import cg;
-import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.Mod.Init;
+import cpw.mods.fml.common.Mod.Instance;
+import cpw.mods.fml.common.Mod.PostInit;
 import cpw.mods.fml.common.Mod.PreInit;
-import cpw.mods.fml.common.Mod.ServerStarted;
+import cpw.mods.fml.common.SidedProxy;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerStartedEvent;
-import cpw.mods.fml.common.network.IConnectionHandler;
-import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.NetworkMod;
-import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.common.network.Player;
-import cpw.mods.fml.relauncher.Side;
-import dk;
-import dz;
-import ej;
-import hs;
-import java.io.PrintStream;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-import jf;
-import net.minecraft.client.Minecraft;
-import net.minecraft.server.MinecraftServer;
-import wk;
-import wm;
+import net.minecraftforge.client.MinecraftForgeClient;
 
 @NetworkMod(clientSideRequired=true, serverSideRequired=true, versionBounds="[2.2,2.3)", channels={"DiamondMeter"}, packetHandler=mod_DiamondMeter.class, connectionHandler=mod_DiamondMeter.class)
 @Mod(modid="DiamondMeter", name="Diamond Meter", version="2.2.2")
@@ -64,12 +45,12 @@ public class mod_DiamondMeter
       {
         sender.a("DiamondMeter: Reloading config file");
 
-        ((ItemDiamondMeter)diamondMeter); ItemDiamondMeter.prop.clear();
+        ItemDiamondMeter.prop.clear();
         ((ItemDiamondMeter)diamondMeter).loadConfig();
 
         if (FMLCommonHandler.instance().getSide().equals(Side.SERVER))
         {
-          ((ItemDiamondMeter)diamondMeter); Iterator it = ItemDiamondMeter.prop.entrySet().iterator();
+          Iterator it = ItemDiamondMeter.prop.entrySet().iterator();
 
           while (it.hasNext())
           {
@@ -90,20 +71,20 @@ public class mod_DiamondMeter
       else if (command[0].equals("current"))
       {
         sender.a("DiamondMeter: Current config:");
-        ((ItemDiamondMeter)diamondMeter); sender.a("DiamondMeter: distanceMax: " + ItemDiamondMeter.prop.getProperty("distanceMax"));
-        ((ItemDiamondMeter)diamondMeter); sender.a("DiamondMeter: toFind: " + ItemDiamondMeter.prop.getProperty("toFind"));
-        ((ItemDiamondMeter)diamondMeter); sender.a("DiamondMeter: playSound: " + ItemDiamondMeter.prop.getProperty("playSound"));
-        ((ItemDiamondMeter)diamondMeter); sender.a("DiamondMeter: soundCloser: " + ItemDiamondMeter.prop.getProperty("soundCloser"));
-        ((ItemDiamondMeter)diamondMeter); sender.a("DiamondMeter: soundFurther: " + ItemDiamondMeter.prop.getProperty("soundFurther"));
-        ((ItemDiamondMeter)diamondMeter); sender.a("DiamondMeter: soundVolume: " + ItemDiamondMeter.prop.getProperty("soundVolume"));
+        sender.a("DiamondMeter: distanceMax: " + ItemDiamondMeter.prop.getProperty("distanceMax"));
+        sender.a("DiamondMeter: toFind: " + ItemDiamondMeter.prop.getProperty("toFind"));
+        sender.a("DiamondMeter: playSound: " + ItemDiamondMeter.prop.getProperty("playSound"));
+        sender.a("DiamondMeter: soundCloser: " + ItemDiamondMeter.prop.getProperty("soundCloser"));
+        sender.a("DiamondMeter: soundFurther: " + ItemDiamondMeter.prop.getProperty("soundFurther"));
+        sender.a("DiamondMeter: soundVolume: " + ItemDiamondMeter.prop.getProperty("soundVolume"));
       }
       else if (command[0].equals("set"))
       {
         if (command.length == 3)
         {
-          ((ItemDiamondMeter)diamondMeter); ItemDiamondMeter.prop.put(command[1], command[2]);
-          ((ItemDiamondMeter)diamondMeter).initProps();
-          ((ItemDiamondMeter)diamondMeter).saveConfig();
+          ItemDiamondMeter.prop.put(command[1], command[2]);
+          this.initProps();
+          this.saveConfig();
 
           if (FMLCommonHandler.instance().getSide().equals(Side.SERVER))
           {
@@ -140,7 +121,7 @@ public class mod_DiamondMeter
 
       if (channel.equals("DiamondMeter"))
       {
-        ((ItemDiamondMeter)diamondMeter); ItemDiamondMeter.serverProps.clear();
+        ItemDiamondMeter.serverProps.clear();
 
         String[] config = new String(packet.c).split("\r\n");
 
@@ -151,11 +132,11 @@ public class mod_DiamondMeter
           if (configEntry.length == 2)
           {
             System.out.println("DiamondMeter config from server: " + configEntry[0] + " = " + configEntry[1]);
-            ((ItemDiamondMeter)diamondMeter); ItemDiamondMeter.serverProps.put(configEntry[0], configEntry[1]);
+            ItemDiamondMeter.serverProps.put(configEntry[0], configEntry[1]);
           }
         }
 
-        ((ItemDiamondMeter)diamondMeter).initProps();
+        this.initProps();
       }
     }
   }
@@ -167,7 +148,7 @@ public class mod_DiamondMeter
       String channel = "DiamondMeter";
       String out = "";
 
-      ((ItemDiamondMeter)diamondMeter); Iterator it = ItemDiamondMeter.prop.entrySet().iterator();
+      Iterator it = ItemDiamondMeter.prop.entrySet().iterator();
 
       while (it.hasNext())
       {
@@ -188,7 +169,7 @@ public class mod_DiamondMeter
   {
     if ((ModLoader.getMinecraftInstance().C()) || (ModLoader.getMinecraftInstance().e == null))
     {
-      ((ItemDiamondMeter)diamondMeter).initProps();
+      this.initProps();
     }
   }
 

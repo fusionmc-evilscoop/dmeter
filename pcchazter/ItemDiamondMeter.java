@@ -1,27 +1,6 @@
 package pcchazter.DiamondMeter;
 
-import ModLoader;
-import aab;
-import apa;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Properties;
-import lx;
-import ly;
-import mp;
-import net.minecraft.client.Minecraft;
-import so;
-import sq;
-import ve;
-import wk;
-import wm;
+import net.minecraftforge.client.MinecraftForgeClient;
 
 public class ItemDiamondMeter extends wk
 {
